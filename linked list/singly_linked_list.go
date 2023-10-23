@@ -37,7 +37,7 @@ func (linkedList *linkedList) print() {
 	}
 }
 
-func (linkedList *linkedList) insert(name string, no, score int) {
+func (linkedList *linkedList) add(name string, no, score int) {
 	newNode := &node{
 		name:  name,
 		no:    no,
@@ -49,6 +49,41 @@ func (linkedList *linkedList) insert(name string, no, score int) {
 	if linkedList.isEmpty() {
 		linkedList.first = newNode
 		linkedList.last = newNode
+	} else {
+		linkedList.last.next = newNode
+		linkedList.last = newNode
+	}
+}
+
+func (linkedList *linkedList) insert(index int, n *node) {
+	newNode := &node{
+		name:  n.name,
+		no:    n.no,
+		score: n.score,
+		next:  nil,
+	}
+
+	if linkedList.isEmpty() {
+		linkedList.first = newNode
+		linkedList.last = newNode
+
+		return
+	}
+
+	current := linkedList.first
+	for i := 0; i < index-1; i++ {
+		current = current.next
+
+		if current == nil || current.next == nil {
+			println("索引超出链表的范围")
+
+			return
+		}
+	}
+
+	if current.next.next != nil {
+		newNode.next = current.next
+		current.next = newNode
 	} else {
 		linkedList.last.next = newNode
 		linkedList.last = newNode
@@ -119,17 +154,36 @@ func (linkedList *linkedList) delete(index int) {
 	}
 }
 
+func concatenation(list1, list2 *linkedList) *linkedList {
+	if list1.isEmpty() {
+		list1.first = list2.first
+		list1.last = list2.last
+	} else {
+		list1.last.next = list2.first
+		list1.last = list2.last
+	}
+
+	list2.first = nil
+	list2.last = nil
+
+	return list1
+}
+
 func main() {
-	list := linkedList{}
+	students := linkedList{}
+	foods := linkedList{}
 
-	list.insert("张三", 1, 80)
-	list.insert("李四", 2, 90)
-	list.insert("王五", 3, 100)
+	students.add("张三", 1, 80)
+	students.add("李四", 2, 90)
+	students.add("王五", 3, 100)
 
-	list.print()
-	println("---")
-	list.delete(2)
-	list.print()
+	foods.add("苹果", 1, 89)
+	foods.add("香蕉", 2, 95)
+	foods.add("雪梨", 3, 100)
+
+	students.print()
+	foods.print()
+
 }
 
 // linkedList:

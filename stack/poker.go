@@ -1,60 +1,65 @@
 package main
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
 
-var top = -1
+type Card struct {
+	Suit  string
+	Value string
+}
 
-// 以数组模拟扑克牌洗牌以及发牌的过程
-// 以随机数取得扑克牌后放入堆栈，放满 52 张牌后开始发牌，同样使用堆栈来发给 4 个人
+var suits = []string{"Clubs", "Diamonds", "Hearts", "Spades"}
+var values = []string{"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"}
+
 func main() {
-	card := make([]int, 52)
-	stack := make([]int, 52)
-	k := 0
-	var test int
+	rand.Seed(time.Now().UnixNano())
 
-	for i := 0; i < 52; i++ {
-		card[i] = i
+	deck := generateDeck()
+	shuffledDeck := shuffleDeck(deck)
+	hands := dealCards(shuffledDeck, 4, 13)
 
-		println("[正在洗牌...]")
-		for k < 30 {
-			for i := 0; i < 51; i++ {
-				for j := i + 1; j < 52; j++ {
-					if rand.Intn(5) == 2 {
-						test = card[i]
-						card[i] = card[j]
-						card[j] = test
-					}
-				}
+	for i, hand := range hands {
+		fmt.Printf("Hand %d:\n", i+1)
+		for _, card := range hand {
+			fmt.Printf("%s of %s\n", card.Value, card.Suit)
+		}
+		fmt.Println()
+	}
+}
+
+func generateDeck() []Card {
+	var deck []Card
+	for _, suit := range suits {
+		for _, value := range values {
+			card := Card{
+				Suit:  suit,
+				Value: value,
 			}
-
-			k++
+			deck = append(deck, card)
 		}
-		i = 0
-
-		for i != 52 {
-			push(&stack, 52, card[i])
-			i++
-		}
-
-		println("[逆时针发牌]")
 	}
+	return deck
 }
 
-func push(stack *[]int, MAX, val int) {
-	if top > MAX-1 {
-		panic("[堆栈已经满了]")
-	} else {
-		top++
-		(*stack)[top] = val
+func shuffleDeck(deck []Card) []Card {
+	shuffledDeck := make([]Card, len(deck))
+	perm := rand.Perm(len(deck))
+	for i, j := range perm {
+		shuffledDeck[i] = deck[j]
 	}
+	return shuffledDeck
 }
 
-func pop(stack *[]int) int {
-	if top < 0 {
-		panic("[堆栈已经空了]")
-	} else {
-		top--
-
-		return (*stack)[top]
+func dealCards(deck []Card, numPlayers, cardsPerPlayer int) [][]Card {
+	hands := make([][]Card, numPlayers)
+	for i := 0; i < numPlayers; i++ {
+		hands[i] = make([]Card, cardsPerPlayer)
+		for j := 0; j < cardsPerPlayer; j++ {
+			hands[i][j] = deck[i*cardsPerPlayer+j]
+		}
 	}
+	return hands
 }
